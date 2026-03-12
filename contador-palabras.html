@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Contador de Palabras y Caracteres Online — Gratis</title>
+<meta name="description" content="Contá palabras, caracteres, oraciones y tiempo de lectura al instante. Ideal para Twitter/X, Instagram, WhatsApp, ChatGPT, CVs y formularios. Sin registro, sin límites.">
+<meta name="keywords" content="contador de palabras, contador de caracteres, contar palabras online, contador de letras, contador twitter, limite caracteres instagram">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,500;12..96,700&family=Azeret+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f0f0f;
+    --surface: #1a1a1a;
+    --surface2: #232323;
+    --border: #2e2e2e;
+    --text: #f0ede8;
+    --muted: #888;
+    --accent: #e8d5a3;
+    --accent2: #c4b483;
+    --danger: #e07070;
+    --success: #7ec8a0;
+    --font-body: 'Bricolage Grotesque', sans-serif;
+    --font-mono: 'Azeret Mono', monospace;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { font-size: 16px; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: var(--font-body);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* HEADER */
+  .site-header {
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .logo {
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--accent);
+    letter-spacing: 0.05em;
+  }
+  .logo span { color: var(--muted); }
+
+  /* HERO */
+  .hero {
+    padding: 48px 24px 32px;
+    max-width: 860px;
+    margin: 0 auto;
+  }
+  .hero h1 {
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 700;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+    margin-bottom: 12px;
+  }
+  .hero h1 em {
+    font-style: normal;
+    color: var(--accent);
+  }
+  .hero p {
+    color: var(--muted);
+    font-size: 1rem;
+    max-width: 500px;
+  }
+
+  /* MAIN TOOL */
+  .tool-wrap {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 0 24px 48px;
+  }
+
+  /* STATS BAR */
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  @media (max-width: 600px) {
+    .stats-bar { grid-template-columns: repeat(3, 1fr); }
+    .stats-bar .stat:nth-child(4),
+    .stats-bar .stat:nth-child(5) { display: block; }
+  }
+  .stat {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 12px;
+    text-align: center;
+    transition: border-color 0.2s;
+  }
+  .stat.active { border-color: var(--accent); }
+  .stat-num {
+    font-family: var(--font-mono);
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: var(--accent);
+    line-height: 1;
+    margin-bottom: 4px;
+    transition: transform 0.15s;
+  }
+  .stat-num.bump {
+    transform: scale(1.12);
+  }
+  .stat-label {
+    font-size: 11px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  /* TEXTAREA */
+  .textarea-wrap { position: relative; }
+  textarea {
+    width: 100%;
+    min-height: 280px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    color: var(--text);
+    font-family: var(--font-body);
+    font-size: 1rem;
+    line-height: 1.7;
+    padding: 20px;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    caret-color: var(--accent);
+  }
+  textarea::placeholder { color: #444; }
+  textarea:focus { border-color: #444; }
+
+  .textarea-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 8px;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .char-limit-wrap {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .limit-label { font-size: 12px; color: var(--muted); }
+  .limit-btns { display: flex; gap: 4px; }
+  .lbtn {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--muted);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .lbtn:hover { border-color: var(--accent); color: var(--accent); }
+  .lbtn.active { background: var(--accent); color: var(--bg); border-color: var(--accent); }
+
+  .clear-btn {
+    font-size: 12px;
+    color: var(--muted);
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 6px;
+    transition: color 0.15s;
+  }
+  .clear-btn:hover { color: var(--danger); }
+
+  /* LIMIT BAR */
+  .limit-bar-wrap { margin-top: 10px; display: none; }
+  .limit-bar-wrap.visible { display: block; }
+  .limit-info {
+    display: flex;
+    justify-content: space-between;
+    font-size: 12px;
+    margin-bottom: 5px;
+  }
+  .limit-info .remaining { color: var(--muted); }
+  .limit-info .remaining.warn { color: #e8b86d; }
+  .limit-info .remaining.over { color: var(--danger); }
+  .bar-track {
+    height: 3px;
+    background: var(--border);
+    border-radius: 99px;
+    overflow: hidden;
+  }
+  .bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: var(--success);
+    transition: width 0.2s, background 0.2s;
+  }
+  .bar-fill.warn { background: #e8b86d; }
+  .bar-fill.over { background: var(--danger); }
+
+  /* DENSITY */
+  .density-section {
+    margin-top: 20px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 16px 20px;
+  }
+  .density-title {
+    font-size: 12px;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 12px;
+  }
+  .density-list { display: flex; flex-direction: column; gap: 6px; }
+  .density-row {
+    display: grid;
+    grid-template-columns: 110px 1fr 50px;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+  }
+  .density-word { color: var(--text); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .density-bar-track { background: var(--border); border-radius: 99px; height: 4px; }
+  .density-bar-fill { height: 100%; border-radius: 99px; background: var(--accent); transition: width 0.3s; }
+  .density-count { font-family: var(--font-mono); font-size: 12px; color: var(--muted); text-align: right; }
+  .density-empty { color: var(--muted); font-size: 13px; }
+
+  /* TIPS GRID */
+  .tips-section {
+    margin-top: 12px;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 8px;
+  }
+  .tip-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px;
+    cursor: pointer;
+    transition: border-color 0.15s;
+  }
+  .tip-card:hover { border-color: var(--accent2); }
+  .tip-name { font-size: 12px; font-weight: 500; color: var(--accent); margin-bottom: 3px; }
+  .tip-limit { font-family: var(--font-mono); font-size: 11px; color: var(--muted); }
+
+  /* SEO CONTENT */
+  .seo-section {
+    max-width: 860px;
+    margin: 0 auto;
+    padding: 40px 24px 64px;
+    border-top: 1px solid var(--border);
+  }
+  .seo-section h2 {
+    font-size: 1.4rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text);
+  }
+  .seo-section h3 {
+    font-size: 1rem;
+    font-weight: 500;
+    margin: 20px 0 6px;
+    color: var(--accent);
+  }
+  .seo-section p {
+    color: var(--muted);
+    font-size: 0.925rem;
+    line-height: 1.8;
+    margin-bottom: 8px;
+  }
+  .faq-item { margin-bottom: 16px; }
+  .limits-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 13px;
+    margin-top: 12px;
+  }
+  .limits-table th {
+    text-align: left;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--muted);
+    padding: 8px 0;
+    border-bottom: 1px solid var(--border);
+  }
+  .limits-table td {
+    padding: 9px 0;
+    border-bottom: 1px solid var(--border);
+    color: var(--muted);
+  }
+  .limits-table td:first-child { color: var(--text); font-weight: 500; }
+  .limits-table td:last-child { font-family: var(--font-mono); color: var(--accent); }
+
+  footer {
+    text-align: center;
+    padding: 20px;
+    font-size: 12px;
+    color: #444;
+    border-top: 1px solid var(--border);
+  }
+</style>
+</head>
+<body>
+
+<header class="site-header">
+  <span class="logo">contador<span>.</span>palabras</span>
+</header>
+
+<section class="hero">
+  <h1>Contá <em>palabras</em> y<br>caracteres al instante</h1>
+  <p>Para Twitter, Instagram, ChatGPT, LinkedIn, CVs o cualquier texto. Sin registro ni límites.</p>
+</section>
+
+<div class="tool-wrap">
+
+  <!-- STATS -->
+  <div class="stats-bar">
+    <div class="stat" id="s-words">
+      <div class="stat-num" id="n-words">0</div>
+      <div class="stat-label">Palabras</div>
+    </div>
+    <div class="stat" id="s-chars">
+      <div class="stat-num" id="n-chars">0</div>
+      <div class="stat-label">Caracteres</div>
+    </div>
+    <div class="stat" id="s-nospace">
+      <div class="stat-num" id="n-nospace">0</div>
+      <div class="stat-label">Sin espacios</div>
+    </div>
+    <div class="stat" id="s-sentences">
+      <div class="stat-num" id="n-sentences">0</div>
+      <div class="stat-label">Oraciones</div>
+    </div>
+    <div class="stat" id="s-readtime">
+      <div class="stat-num" id="n-readtime">0</div>
+      <div class="stat-label">Min lectura</div>
+    </div>
+  </div>
+
+  <!-- TEXTAREA -->
+  <div class="textarea-wrap">
+    <textarea id="txt" placeholder="Pegá o escribí tu texto acá..."></textarea>
+  </div>
+
+  <div class="textarea-footer">
+    <div class="char-limit-wrap">
+      <span class="limit-label">Límite rápido:</span>
+      <div class="limit-btns">
+        <button class="lbtn" data-limit="280">X/Twitter</button>
+        <button class="lbtn" data-limit="2200">Instagram</button>
+        <button class="lbtn" data-limit="3000">LinkedIn</button>
+        <button class="lbtn" data-limit="160">SMS</button>
+        <button class="lbtn" data-limit="4000">ChatGPT</button>
+      </div>
+    </div>
+    <button class="clear-btn" id="clear-btn">Limpiar ×</button>
+  </div>
+
+  <!-- LIMIT BAR -->
+  <div class="limit-bar-wrap" id="limit-bar-wrap">
+    <div class="limit-info">
+      <span id="limit-name" style="font-size:12px;color:var(--muted)"></span>
+      <span class="remaining" id="limit-remaining"></span>
+    </div>
+    <div class="bar-track">
+      <div class="bar-fill" id="bar-fill"></div>
+    </div>
+  </div>
+
+  <!-- LÍMITES RÁPIDOS (tarjetas) -->
+  <div class="tips-section" style="margin-top:16px;">
+    <div class="tip-card" onclick="setLimit(280,'X / Twitter')">
+      <div class="tip-name">X / Twitter</div>
+      <div class="tip-limit">280 caracteres</div>
+    </div>
+    <div class="tip-card" onclick="setLimit(2200,'Instagram')">
+      <div class="tip-name">Instagram caption</div>
+      <div class="tip-limit">2.200 caracteres</div>
+    </div>
+    <div class="tip-card" onclick="setLimit(150,'Instagram Bio')">
+      <div class="tip-name">Instagram bio</div>
+      <div class="tip-limit">150 caracteres</div>
+    </div>
+    <div class="tip-card" onclick="setLimit(3000,'LinkedIn')">
+      <div class="tip-name">LinkedIn post</div>
+      <div class="tip-limit">3.000 caracteres</div>
+    </div>
+    <div class="tip-card" onclick="setLimit(160,'SMS')">
+      <div class="tip-name">SMS</div>
+      <div class="tip-limit">160 caracteres</div>
+    </div>
+    <div class="tip-card" onclick="setLimit(4000,'ChatGPT')">
+      <div class="tip-name">ChatGPT (GPT-4)</div>
+      <div class="tip-limit">~4.000 tokens</div>
+    </div>
+  </div>
+
+  <!-- DENSIDAD DE PALABRAS -->
+  <div class="density-section" style="margin-top:16px;">
+    <div class="density-title">Palabras más frecuentes</div>
+    <div class="density-list" id="density-list">
+      <span class="density-empty">Escribí algo para ver el análisis...</span>
+    </div>
+  </div>
+
+</div><!-- /tool-wrap -->
+
+<!-- SEO CONTENT -->
+<section class="seo-section">
+  <h2>Contador de palabras online — gratis y sin límites</h2>
+  <p>Esta herramienta cuenta al instante las palabras, caracteres, oraciones y tiempo de lectura de cualquier texto. No necesitás registrarte ni instalar nada. Funciona directamente en el navegador.</p>
+
+  <h3>¿Para qué sirve contar caracteres?</h3>
+  <p>Cada plataforma tiene sus propios límites. Pasarte de esos límites puede cortar tu mensaje, impedir que se publique o afectar el alcance de tu contenido. Conocer exactamente cuántos caracteres tiene tu texto te evita sorpresas.</p>
+
+  <table class="limits-table">
+    <thead>
+      <tr><th>Plataforma</th><th>Tipo</th><th>Límite</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>X / Twitter</td><td>Tweet</td><td>280 caracteres</td></tr>
+      <tr><td>Instagram</td><td>Caption</td><td>2.200 caracteres</td></tr>
+      <tr><td>Instagram</td><td>Bio</td><td>150 caracteres</td></tr>
+      <tr><td>LinkedIn</td><td>Post</td><td>3.000 caracteres</td></tr>
+      <tr><td>WhatsApp</td><td>Mensaje</td><td>65.536 caracteres</td></tr>
+      <tr><td>SMS</td><td>Mensaje</td><td>160 caracteres</td></tr>
+      <tr><td>TikTok</td><td>Caption</td><td>2.200 caracteres</td></tr>
+      <tr><td>Meta Ads</td><td>Título</td><td>40 caracteres</td></tr>
+      <tr><td>Google Ads</td><td>Titular</td><td>30 caracteres</td></tr>
+      <tr><td>ChatGPT GPT-4</td><td>Prompt</td><td>~4.000 tokens</td></tr>
+    </tbody>
+  </table>
+
+  <h3>¿Cómo se calcula el tiempo de lectura?</h3>
+  <p>El tiempo de lectura se estima a 200 palabras por minuto, que es el ritmo promedio de lectura de un adulto en castellano. En inglés el promedio es un poco más alto (250 wpm), pero para textos en español 200 wpm es la referencia más precisa.</p>
+
+  <h3>Preguntas frecuentes</h3>
+
+  <div class="faq-item">
+    <h3>¿Mis textos se guardan en algún servidor?</h3>
+    <p>No. Todo el procesamiento ocurre directamente en tu navegador. Nada de lo que escribís sale de tu dispositivo. No hay servidor, no hay base de datos, no hay registro de texto.</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>¿Cuenta palabras en inglés también?</h3>
+    <p>Sí. La lógica de conteo funciona para cualquier idioma con espacios entre palabras: español, inglés, francés, italiano, portugués, alemán y más.</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>¿Qué es un token y por qué aparece en ChatGPT?</h3>
+    <p>Un token es la unidad mínima que procesa un modelo de lenguaje como GPT-4 o Claude. Un token es aproximadamente 4 caracteres en inglés o 3–4 caracteres en español. El límite de contexto de ChatGPT se mide en tokens, no en palabras. Esta herramienta usa la aproximación de 4 caracteres por token para darte una estimación.</p>
+  </div>
+
+  <div class="faq-item">
+    <h3>¿Sirve para contar palabras de un trabajo o tesis?</h3>
+    <p>Sí. Podés pegar el texto de tu trabajo y obtener el conteo exacto. Es útil para verificar que cumplís con los requisitos de extensión antes de entregar. También te dice cuántas oraciones tiene, lo que ayuda a revisar si el texto tiene párrafos muy largos.</p>
+  </div>
+</section>
+
+<footer>
+  © 2026 · Herramienta gratuita · Sin registro · Sin publicidad invasiva
+</footer>
+
+<script>
+const txt = document.getElementById('txt');
+const nWords = document.getElementById('n-words');
+const nChars = document.getElementById('n-chars');
+const nNospace = document.getElementById('n-nospace');
+const nSentences = document.getElementById('n-sentences');
+const nReadtime = document.getElementById('n-readtime');
+const densityList = document.getElementById('density-list');
+const limitBarWrap = document.getElementById('limit-bar-wrap');
+const barFill = document.getElementById('bar-fill');
+const limitRemaining = document.getElementById('limit-remaining');
+const limitName = document.getElementById('limit-name');
+
+let currentLimit = null;
+let currentLimitName = '';
+
+const STOP_WORDS = new Set(['de','la','el','en','y','a','los','del','se','las','por','un','para','con','una','su','al','lo','como','más','pero','sus','le','ya','o','este','fue','ese','ha','sí','sobre','así','cuando','son','no','me','si','todo','entre','sin','desde','nos','ni','ellos','ellas','muy','porque','qué','donde','les','mi','tu','aquí','que','es','he','she','the','and','for','are','but','not','you','all','can','had','her','his','him','one','our','out','day','get','has','how','its','may','new','now','old','see','two','way','who','boy','did','man','too','use','was','com']);
+
+function countAll() {
+  const val = txt.value;
+  const words = val.trim() === '' ? [] : val.trim().split(/\s+/).filter(w => w.length > 0);
+  const wordCount = words.length;
+  const charCount = val.length;
+  const noSpace = val.replace(/\s/g, '').length;
+  const sentences = val.trim() === '' ? 0 : (val.match(/[.!?]+/g) || []).length || (val.trim().length > 0 ? 1 : 0);
+  const readtime = Math.max(1, Math.ceil(wordCount / 200));
+
+  animateStat(nWords, wordCount);
+  animateStat(nChars, charCount);
+  animateStat(nNospace, noSpace);
+  animateStat(nSentences, sentences);
+  nReadtime.textContent = wordCount < 200 ? '<1' : readtime;
+
+  updateDensity(words);
+  updateLimitBar(charCount);
+}
+
+function animateStat(el, val) {
+  if (el.textContent !== String(val)) {
+    el.textContent = val;
+    el.classList.add('bump');
+    setTimeout(() => el.classList.remove('bump'), 150);
+  }
+}
+
+function updateDensity(words) {
+  const freq = {};
+  words.forEach(w => {
+    const clean = w.toLowerCase().replace(/[^a-záéíóúüñ]/gi, '');
+    if (clean.length > 2 && !STOP_WORDS.has(clean)) {
+      freq[clean] = (freq[clean] || 0) + 1;
+    }
+  });
+  const sorted = Object.entries(freq).sort((a,b) => b[1]-a[1]).slice(0,8);
+  if (sorted.length === 0) {
+    densityList.innerHTML = '<span class="density-empty">Escribí algo para ver el análisis...</span>';
+    return;
+  }
+  const max = sorted[0][1];
+  densityList.innerHTML = sorted.map(([word, count]) => `
+    <div class="density-row">
+      <span class="density-word">${word}</span>
+      <div class="density-bar-track"><div class="density-bar-fill" style="width:${(count/max*100).toFixed(0)}%"></div></div>
+      <span class="density-count">${count}×</span>
+    </div>
+  `).join('');
+}
+
+function setLimit(n, name) {
+  currentLimit = n;
+  currentLimitName = name;
+  limitBarWrap.classList.add('visible');
+  limitName.textContent = name + ':';
+  document.querySelectorAll('.lbtn').forEach(b => {
+    b.classList.toggle('active', parseInt(b.dataset.limit) === n);
+  });
+  updateLimitBar(txt.value.length);
+}
+
+function updateLimitBar(charCount) {
+  if (!currentLimit) return;
+  const pct = charCount / currentLimit * 100;
+  const rem = currentLimit - charCount;
+  barFill.style.width = Math.min(pct, 100) + '%';
+  barFill.className = 'bar-fill' + (rem < 0 ? ' over' : pct > 80 ? ' warn' : '');
+  limitRemaining.className = 'remaining' + (rem < 0 ? ' over' : rem < currentLimit * 0.2 ? ' warn' : '');
+  limitRemaining.textContent = rem < 0
+    ? `${Math.abs(rem)} caracteres de más`
+    : `${rem} caracteres restantes`;
+}
+
+document.querySelectorAll('.lbtn').forEach(b => {
+  b.addEventListener('click', () => {
+    const lim = parseInt(b.dataset.limit);
+    const names = {280:'X/Twitter', 2200:'Instagram', 3000:'LinkedIn', 160:'SMS', 4000:'ChatGPT'};
+    setLimit(lim, names[lim] || '');
+  });
+});
+
+document.getElementById('clear-btn').addEventListener('click', () => {
+  txt.value = '';
+  countAll();
+});
+
+txt.addEventListener('input', countAll);
+countAll();
+</script>
+</body>
+</html>
